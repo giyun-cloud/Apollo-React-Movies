@@ -1,11 +1,11 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import Movie from "../components/Movie";
 
 const GetMovies = gql`
   {
-    movies {
+    movies(rating: 8.5) {
       id
       medium_cover_image
     }
@@ -20,7 +20,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.header`
-  background-image: linear-gradient(-45deg, #d754ab, #fd723a);
+  background-image: linear-gradient(-45deg, #e67e22, #f39c12);
   height: 45vh;
   color: white;
   display: flex;
@@ -47,7 +47,14 @@ const Loading = styled.div`
   margin-top: 10px;
 `;
 
-const DataLink = styled(Link)``;
+const Movies = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 25px;
+  width: 60%;
+  position: relative;
+  top: -50px;
+`;
 
 const Home = () => {
   const { loading, data } = useQuery(GetMovies);
@@ -58,9 +65,11 @@ const Home = () => {
         <Subtitle>I love GraphQL</Subtitle>
       </Header>
       {loading && <Loading>Loading...</Loading>}
-      {data &&
-        data.movies &&
-        data.movies.map((m) => <DataLink to={`/${m.id}`}>{m.id}</DataLink>)}
+      <Movies>
+        {data &&
+          data.movies &&
+          data.movies.map((m) => <Movie id={m.id} bg={m.medium_cover_image} />)}
+      </Movies>
     </Container>
   );
 };
