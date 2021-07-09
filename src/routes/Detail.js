@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 const GET_MOVIE = gql`
   query getMovie($id: Int!) {
@@ -10,6 +11,12 @@ const GET_MOVIE = gql`
       title
       medium_cover_image
       description_intro
+      language
+      rating
+    }
+    suggestions(id: $id) {
+      id
+      medium_cover_image
     }
   }
 `;
@@ -25,7 +32,9 @@ const Container = styled.div`
 `;
 
 const Column = styled.div`
-  margin-left: 10px;
+  margin-left: 20px;
+  width: 45%;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 `;
 
 const Title = styled.h1`
@@ -40,12 +49,37 @@ const Subtitle = styled.h4`
 
 const Description = styled.p`
   font-size: 28px;
+  color: #ecf0f1;
 `;
 
 const Poster = styled.div`
   width: 25%;
   height: 60%;
   background-color: transparent;
+  background-image: url(${(props) => props.bg});
+  background-size: cover;
+  background-position: center center;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+`;
+const SugPosters = styled.div`
+  margin-top: 15px;
+  padding: 10px 10px 20px;
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+`;
+const SugFlex = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+`;
+const SugPoster = styled.div`
+  width: 150px;
+  height: 200px;
+  background-color: transparent;
+  background-image: url(${(props) => props.bg});
+  background-size: cover;
+  background-position: center center;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 `;
 
 const Detail = () => {
@@ -56,11 +90,28 @@ const Detail = () => {
   return (
     <Container>
       <Column>
-        <Title>Name</Title>
-        <Subtitle>English · 4.5</Subtitle>
-        <Description>lorem ipsum lalalla </Description>
+        <Title>{loading ? "Loading..." : data?.movie?.title}</Title>
+        {!loading && (
+          <>
+            <Subtitle>
+              {data?.movie?.language} ·&nbsp;
+              {data?.movie?.rating}
+            </Subtitle>
+            <Description>{data?.movie?.description_intro}</Description>
+            <SugPosters>
+              Suggestions
+              <SugFlex>
+                {data?.suggestions.map((s) => (
+                  <Link to={`/${s.id}`}>
+                    <SugPoster key={s.id} bg={s.medium_cover_image}></SugPoster>
+                  </Link>
+                ))}
+              </SugFlex>
+            </SugPosters>
+          </>
+        )}
       </Column>
-      <Poster></Poster>
+      <Poster bg={data?.movie?.medium_cover_image} />
     </Container>
   );
 };
