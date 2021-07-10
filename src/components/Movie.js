@@ -1,4 +1,4 @@
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -6,6 +6,23 @@ import styled from "styled-components";
 const LikeMovie = gql`
   mutation likeMovie($id: Int) {
     likeMovie(id: $id) @client
+  }
+`;
+const GET_MOVIE = gql`
+  query getMovie($id: Int!) {
+    movie(id: $id) {
+      id
+      title
+      medium_cover_image
+      description_intro
+      language
+      rating
+      isLiked @client
+    }
+    suggestions(id: $id) {
+      id
+      medium_cover_image
+    }
   }
 `;
 
@@ -38,12 +55,17 @@ function Movie({ id, bg, isLiked }) {
   const [likeMovie] = useMutation(LikeMovie, {
     variables: { id },
   });
+  const { loading } = useQuery(GET_MOVIE, {
+    variables: { id: +id },
+  });
   return (
     <Container>
       <Link to={`/${id}`}>
         <Poster bg={bg} />
       </Link>
-      <Button onClick={likeMovie}>{isLiked ? "UnLike" : "Like"}</Button>
+      <Button onClick={likeMovie}>
+        {isLiked ? (loading ? "loading" : "UnLike") : "Like"}
+      </Button>
     </Container>
   );
 }
